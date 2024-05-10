@@ -90,7 +90,8 @@ type System interface {
 	SocketCount() int
 	CPUCount() int
 	NUMANodeCount() int
-	ThreadCount() int
+	MinThreadCount() int
+	MaxThreadCount() int
 	CPUSet() cpuset.CPUSet
 	Package(id idset.ID) CPUPackage
 	Node(id idset.ID) Node
@@ -123,7 +124,8 @@ type system struct {
 	onlineCPUs    idset.IDSet                          // set of online CPUs
 	isolatedCPUs  idset.IDSet                          // set of isolated CPUs
 	coreKindCPUs  map[CoreKind]idset.IDSet             // CPU cores by kind (P-/E-cores)
-	threads       int                                  // hyperthreads per core
+	minThreads    int                                  // min. hyperthreads per core
+	maxThreads    int                                  // max. hyperthreads per core
 }
 
 // CPUPackage is a physical package (a collection of CPUs).
@@ -578,9 +580,14 @@ func (sys *system) NUMANodeCount() int {
 	return cnt
 }
 
-// ThreadCount returns the number of threads per core discovered.
-func (sys *system) ThreadCount() int {
-	return sys.threads
+// MinThreadCount returns the minimum number of threads per core discovered.
+func (sys *system) MinThreadCount() int {
+	return sys.minThreads
+}
+
+// MaxThreadCount returns the maximum number of threads per core discovered.
+func (sys *system) MaxThreadCount() int {
+	return sys.maxThreads
 }
 
 // CPUSet gets the ids of all CPUs present in the system as a CPUSet.
@@ -729,6 +736,8 @@ func (sys *system) discoverCPUs() error {
 		}
 	}
 
+	sys.minThreads = 1
+	sys.maxThreads = 1
 	entries, _ := filepath.Glob(filepath.Join(sys.path, sysfsCPUPath, "cpu[0-9]*"))
 	for _, entry := range entries {
 		if err := sys.discoverCPU(entry); err != nil {
@@ -867,14 +876,16 @@ func (sys *system) discoverCPU(path string) error {
 		return fmt.Errorf("exactly one node per cpu allowed")
 	}
 
-	if sys.threads < 1 {
-		sys.threads = 1
-	}
-	if cpu.threads.Size() > sys.threads {
-		sys.threads = cpu.threads.Size()
-	}
-
 	sys.cpus[cpu.id] = cpu
+
+	if threadCnt := cpu.threads.Size(); threadCnt > 0 {
+		if threadCnt < sys.minThreads {
+			sys.minThreads = threadCnt
+		}
+		if threadCnt > sys.maxThreads {
+			sys.maxThreads = threadCnt
+		}
+	}
 
 	if (sys.flags & DiscoverCache) != 0 {
 		entries, _ := filepath.Glob(filepath.Join(path, "cache/index[0-9]*"))
@@ -1137,6 +1148,15 @@ func (sys *system) discoverNodes() error {
 		return fmt.Errorf("failed to parse nodes with memory (%q): %v",
 			memoryNodeIDs, err)
 	}
+	onlineNodeIDs, err := readSysfsEntry(sysNodesPath, "online", nil)
+	if err != nil {
+		return fmt.Errorf("failed to discover online nodes: %v", err)
+	}
+	onlineNodes, err := cpuset.Parse(onlineNodeIDs)
+	if err != nil {
+		return fmt.Errorf("failed to parse online nodes (%q): %v",
+			onlineNodeIDs, err)
+	}
 
 	cpuNodesSlice := []int{}
 	for id, node := range sys.nodes {
@@ -1153,7 +1173,8 @@ func (sys *system) discoverNodes() error {
 	sys.Logger.Info("NUMA nodes with (any) memory: %s", memoryNodes.String())
 	sys.Logger.Info("NUMA nodes with normal memory: %s", normalMemNodes.String())
 
-	dramNodes := memoryNodes.Intersection(cpuNodes)
+	noMemNodes := onlineNodes.Difference(memoryNodes)
+	dramNodes := memoryNodes.Intersection(cpuNodes).Union(noMemNodes)
 	pmemOrHbmNodes := memoryNodes.Difference(dramNodes)
 
 	dramNodeIds := IDSetFromCPUSet(dramNodes)
@@ -1178,7 +1199,7 @@ func (sys *system) discoverNodes() error {
 				dramTotal += info.MemTotal
 			}
 		}
-		dramAvg = dramTotal / uint64(len(dramNodeIds))
+		dramAvg = dramTotal / uint64(len(dramNodeIds)-noMemNodes.Size())
 		if dramAvg == 0 {
 			// FIXME: should be no reason to bail out when memory types are properly determined.
 			return fmt.Errorf("no dram in the system, cannot determine special memory types")

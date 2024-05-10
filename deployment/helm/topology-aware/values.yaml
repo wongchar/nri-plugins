@@ -3,7 +3,7 @@
 # Declare variables to be passed into your templates.
 ---
 image:
-  name: ghcr.io/containers/nri-plugins/nri-resource-policy-topology-aware
+  name: ghcr.io/wongchar/nri-plugins/nri-resource-policy-topology-aware
   # tag, if defined will use the given image tag, otherwise Chart.AppVersion will be used
   #tag: unstable
   pullPolicy: Always
@@ -12,6 +12,8 @@ config:
   reservedResources:
     cpu: 750m
   log:
+    debug:
+      - '*'
     source: true
     klog:
       skip_headers: true
@@ -22,7 +24,8 @@ config:
 # configGroupLabel: config.nri/group
 
 # Extra environment variables to inject.
-#extraEnv:
+extraEnv:
+    LOGGER_DEBUG: all
 #   VAR1: VAL1
 #   VAR2: VAL2
 
