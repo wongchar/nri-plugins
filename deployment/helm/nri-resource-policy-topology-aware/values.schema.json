@@ -1,0 +1,89 @@
+{
+    "$schema": "http://json-schema.org/schema#",
+    "required": [
+        "image",
+        "hostPort",
+        "resources"
+    ],
+    "properties": {
+        "image": {
+            "type": "object",
+            "required": [
+                "name",
+                "pullPolicy"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                },
+                "pullPolicy": {
+                    "type": "string",
+                    "enum": ["Never", "Always", "IfNotPresent"]
+                }
+            }
+        },
+        "initContainerImage": {
+            "type": "object",
+            "required": [
+                "name",
+                "pullPolicy"
+            ],
+            "properties": {
+                "name": {
+                    "type": "string"
+                },
+                "tag": {
+                    "type": "string"
+                },
+                "pullPolicy": {
+                    "type": "string",
+                    "enum": ["Never", "Always", "IfNotPresent"]
+                }
+            }
+        },
+        "configGroupLabel": {
+            "type": "string"
+        },
+        "resources": {
+            "type": "object",
+            "required": [
+                "memory",
+                "cpu"
+            ],
+            "properties": {
+                "memory": {
+                    "type": "string"
+                },
+                "cpu": {
+                    "type": "string"
+                }
+            }
+        },
+        "nri": {
+            "type": "object",
+            "required": [
+                "patchRuntimeConfig",
+                "pluginIndex"
+            ],
+            "properties": {
+                "patchRuntimeConfig": {
+                    "type": "boolean"
+                },
+                "pluginIndex": {
+                    "type": "integer",
+                    "minimum": 0,
+                    "maximum": 99
+                }
+            }
+        },
+        "hostPort": {
+            "type": "integer"
+        },
+        "podPriorityClassNodeCritical": {
+            "type": "boolean"
+        }
+    }
+ }
