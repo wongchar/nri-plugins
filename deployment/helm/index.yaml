@@ -3,7 +3,7 @@ entries:
   nri-resource-policy-topology-aware:
   - apiVersion: v2
     appVersion: v0.5.1
-    created: "2024-05-10T16:47:17.542238029-05:00"
+    created: "2024-05-10T16:50:17.954460024-05:00"
     description: 'Topology-aware NRI resource policy plugin is a NRI plugin that will
       apply hardware-aware resource allocation policies to the containers running
       in the system. '
@@ -14,6 +14,6 @@ entries:
     - https://github.com/containers/nri-plugins
     type: application
     urls:
-    - https://github.com/wongchar/nri-plugins/tree/main/deployment/helm/nri-resource-policy-topology-aware-v0.5.1.tgz
+    - https://github.com/wongchar/nri-plugins/tree/llc/deployment/helm/nri-resource-policy-topology-aware-v0.5.1.tgz
     version: v0.5.1
-generated: "2024-05-10T16:47:17.541506535-05:00"
+generated: "2024-05-10T16:50:17.953782357-05:00"
