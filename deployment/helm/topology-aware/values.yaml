@@ -12,8 +12,6 @@ config:
   reservedResources:
     cpu: 750m
   log:
-    debug:
-      - '*'
     source: true
     klog:
       skip_headers: true
@@ -24,8 +22,7 @@ config:
 # configGroupLabel: config.nri/group
 
 # Extra environment variables to inject.
-extraEnv:
-    LOGGER_DEBUG: all
+#extraEnv:
 #   VAR1: VAL1
 #   VAR2: VAL2
 
