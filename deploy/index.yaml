@@ -8,10 +8,10 @@ entries:
       apply hardware-aware resource allocation policies to the containers running
       in the system. '
     digest: 01d868520805e94b5fbec0acafcb18eb222e857dae777b4131761a2df80a36aa
-    home: https://github.com/containers/nri-plugins
+    home: https://github.com/wongchar/nri-plugins
     name: nri-resource-policy-topology-aware
     sources:
-    - https://github.com/containers/nri-plugins
+    - https://github.com/wongchar/nri-plugins
     type: application
     urls:
     - https://github.com/wongchar/nri-plugins/tree/llc/deployment/helm/nri-resource-policy-topology-aware-v0.5.1.tgz
