@@ -14,6 +14,6 @@ entries:
     - https://github.com/wongchar/nri-plugins
     type: application
     urls:
-    - https://github.com/wongchar/nri-plugins/tree/llc/deployment/helm/nri-resource-policy-topology-aware-v0.5.1.tgz
+    - https://github.com/wongchar/nri-plugins/tree/llc/deploy/nri-resource-policy-topology-aware-v0.5.1.tgz
     version: v0.5.1
 generated: "2024-05-10T16:50:17.953782357-05:00"
